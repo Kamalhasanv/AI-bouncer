@@ -1,10 +1,15 @@
-import os
 import streamlit as st
+import json
+from google.oauth2 import service_account
 from google.cloud import storage
 from PIL import Image
 
-# 🔐 Set Google Cloud Credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "crowdmanagement.json"
+# 🔐 Secure Google Cloud Key from Streamlit Secrets
+key_dict = json.loads(st.secrets["GCP_KEY"])
+credentials = service_account.Credentials.from_service_account_info(key_dict)
+
+# ✅ Initialize Google Cloud Client
+client = storage.Client(credentials=credentials, project=key_dict["project_id"])
 
 # 🧠 Streamlit Page Config
 st.set_page_config(page_title="Project Drishti", layout="wide")
@@ -105,7 +110,6 @@ with tab6:
     st.subheader("☁️ Google Cloud Key File Verification")
 
     try:
-        client = storage.Client()
         buckets = list(client.list_buckets())
         st.success("✅ Successfully connected to Google Cloud!")
 
@@ -122,3 +126,4 @@ with tab6:
 # ---------------- Footer ----------------
 st.markdown("---")
 st.caption("🔐 Project Drishti | Powered by AI + Human Collaboration | Prototype by Kamal Hasan")
+
